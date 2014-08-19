@@ -1,0 +1,45 @@
+<project name="ArtNav" default="compile" basedir=".">
+	<property name="src" location="src"/>
+	<property name="build" location="build"/>
+	<property name="lib" location="lib"/>
+
+	<path id="project.class.path">
+		<pathelement location="${src}"/>
+		<fileset dir="${lib}" includes="*.jar"/>
+	</path>
+
+	<pathconvert property="manifest.classpath" pathsep=" ">
+		<path refid="project.class.path"/>
+		<mapper>
+			<chainedmapper>
+				<flattenmapper/>
+				<globmapper from="*.jar" to="lib/*.jar"/>
+			</chainedmapper>
+		</mapper>
+	</pathconvert>
+
+	<target name="init">
+		<tstamp/>
+		<mkdir dir="${build}"/>
+	</target>
+
+	<target name="compile" depends="init">
+		<javac includeantruntime="false" srcdir="${src}" destdir="${build}" classpath="project.class.path"/>
+	</target>
+
+	<target name="clean">
+		<delete dir="${build}"/>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar basedir="${build}" destfile="artnav-0.1.jar">
+			<manifest>
+				<attribute name="Built-By" value="${builder}" />
+				<attribute name="Built-On" value="${build-info.current-date}" />
+				<attribute name="Built-At" value="${build-info.current-time}" />
+				<attribute name="Main-Class" value="HelmController"/>
+				<attribute name="Class-Path" value="${manifest.classpath}"/>
+			</manifest>
+		</jar>
+	</target>
+</project>
