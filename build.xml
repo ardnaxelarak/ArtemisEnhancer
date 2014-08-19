@@ -3,13 +3,13 @@
 	<property name="build" location="build"/>
 	<property name="lib" location="lib"/>
 
-	<path id="project.class.path">
+	<path id="project.classpath">
 		<pathelement location="${src}"/>
 		<fileset dir="${lib}" includes="*.jar"/>
 	</path>
 
 	<pathconvert property="manifest.classpath" pathsep=" ">
-		<path refid="project.class.path"/>
+		<path refid="project.classpath"/>
 		<mapper>
 			<chainedmapper>
 				<flattenmapper/>
@@ -24,7 +24,9 @@
 	</target>
 
 	<target name="compile" depends="init">
-		<javac includeantruntime="false" srcdir="${src}" destdir="${build}" classpath="project.class.path"/>
+		<javac includeantruntime="false" srcdir="${src}" destdir="${build}">
+			<classpath refid="project.classpath"/>
+		</javac>
 	</target>
 
 	<target name="clean">
@@ -37,7 +39,7 @@
 				<attribute name="Built-By" value="${builder}" />
 				<attribute name="Built-On" value="${build-info.current-date}" />
 				<attribute name="Built-At" value="${build-info.current-time}" />
-				<attribute name="Main-Class" value="HelmController"/>
+				<attribute name="Main-Class" value="Launcher"/>
 				<attribute name="Class-Path" value="${manifest.classpath}"/>
 			</manifest>
 		</jar>

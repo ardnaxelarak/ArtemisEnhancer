@@ -1,7 +1,5 @@
 import java.io.IOException;
 import java.io.File;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import net.dhleong.acl.enums.Console;
 import net.dhleong.acl.enums.ShipSystem;
@@ -23,20 +21,6 @@ import net.dhleong.acl.world.ArtemisPlayer;
 
 public class HelmController
 {
-	public static void main(String[] args) throws IOException
-	{
-		if (args.length == 0)
-		{
-			System.out.println("Usage: HelmController {host} [port]");
-			return;
-		}
-
-		String host = args[0];
-		int port = args.length > 1 ? Integer.parseInt(args[1]) : 2010;
-
-		new HelmController(host, port);
-	}
-
 	private ArtemisNetworkInterface server;
 	private static float RUDDER_DEADZONE = 0.1f;
 	private static float IMPULSE_DEADZONE = 0.1f;
