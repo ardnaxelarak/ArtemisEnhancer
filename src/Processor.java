@@ -96,6 +96,10 @@ public class Processor
 						}
 					}
 					break;
+				case 3: // pitch
+					value = e.value / 32767f;
+					server.send(new HelmSetClimbDivePacket(value));
+					break;
 				case 4:
 					if (shiftButton)
 					{

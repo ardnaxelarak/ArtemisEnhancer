@@ -41,7 +41,7 @@ public class HelmController extends Processor
 	@Listener
 	public void onConnectSuccess(ConnectionSuccessEvent event)
 	{
-		server.send(new SetConsolePacket(Console.HELM, true));
+		//server.send(new SetConsolePacket(Console.HELM, true));
 		server.send(new ReadyPacket());
 	}
 

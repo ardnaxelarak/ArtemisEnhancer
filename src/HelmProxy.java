@@ -10,6 +10,7 @@ import net.dhleong.acl.iface.ArtemisNetworkInterface;
 import net.dhleong.acl.iface.ConnectionSuccessEvent;
 import net.dhleong.acl.iface.DisconnectEvent;
 import net.dhleong.acl.iface.Listener;
+import net.dhleong.acl.iface.PacketReader;
 import net.dhleong.acl.iface.ThreadedArtemisNetworkInterface;
 import net.dhleong.acl.protocol.ArtemisPacket;
 import net.dhleong.acl.protocol.core.*;
@@ -21,6 +22,7 @@ import net.dhleong.acl.protocol.RawPacket;
 import net.dhleong.acl.util.BoolState;
 import net.dhleong.acl.vesseldata.VesselData;
 import net.dhleong.acl.world.ArtemisPlayer;
+import net.dhleong.acl.util.TextUtil;
 
 public class HelmProxy implements Runnable
 {
@@ -45,8 +47,9 @@ public class HelmProxy implements Runnable
 			Socket skt = listener.accept();
 			System.out.println("Client connected.");
 			ThreadedArtemisNetworkInterface client = new ThreadedArtemisNetworkInterface(skt, ConnectionType.CLIENT);
-			client.setParsePackets(false);
+			// client.setParsePackets(false);
 			ThreadedArtemisNetworkInterface server = new ThreadedArtemisNetworkInterface(serverAddr, serverPort);
+			// server.setParsePackets(false);
 			new ProxyListener(server, client);
 		}
 		catch (IOException e)
@@ -80,6 +83,7 @@ public class HelmProxy implements Runnable
 			client.addListener(this);
 			server.start();
 			client.start();
+			listen();
 		}
 
 		@Listener
@@ -102,12 +106,39 @@ public class HelmProxy implements Runnable
 		}
 
 		@Listener
-		public void onPacket(RawPacket pkt)
+		public void onSetWarpPacket(HelmSetWarpPacket pkt)
+		{
+			// System.out.println(pkt);
+		}
+
+		@Listener
+		public void onPacket(ArtemisPacket pkt)
 		{
 			ConnectionType type = pkt.getConnectionType();
 			ArtemisNetworkInterface dest = type == ConnectionType.SERVER ? client : server;
-			dest.send(pkt);
-			System.out.println(type + "> " + pkt);
+			if (pkt.getClass() != HelmSetWarpPacket.class)
+				dest.send(pkt);
+/*
+			if (dest == server)
+			{
+				System.out.println(pkt);
+				System.out.println(pkt.getClass());
+			}
+*/
 		}
+
+/*
+		@Listener
+		public void onPacket(RawPacket pkt)
+		{
+			ConnectionType type = pkt.getConnectionType();
+			if (type != ConnectionType.SERVER)
+			{
+				byte[] payload = pkt.getPayload();
+				float val = PacketReader.readFloat(payload, 4);
+				System.out.printf("0x%s %s %f\n", TextUtil.intToHex(pkt.getType()), TextUtil.byteArrayToHexString(pkt.getPayload()), val);
+			}
+		}
+*/
 	}
 }
