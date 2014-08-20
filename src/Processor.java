@@ -5,6 +5,7 @@ import net.dhleong.acl.iface.ArtemisNetworkInterface;
 import net.dhleong.acl.iface.ThreadedArtemisNetworkInterface;
 import net.dhleong.acl.protocol.core.*;
 import net.dhleong.acl.protocol.core.helm.*;
+import net.dhleong.acl.protocol.core.weap.*;
 import net.dhleong.acl.util.BoolState;
 import net.dhleong.acl.vesseldata.VesselData;
 import net.dhleong.acl.world.ArtemisPlayer;
@@ -79,7 +80,19 @@ public class Processor
 					break;
 				case 1: // impulse
 					value = e.value / -32767f;
-					if (value > 0)
+					int sgn = 1;
+					if (value < 0)
+					{
+						value *= -1;
+						sgn = -1;
+					}
+					value -= IMPULSE_DEADZONE;
+					if (value < 0)
+						value = 0;
+					value /= 1 - IMPULSE_DEADZONE;
+					if (value == 0)
+						sgn = 0;
+					if (sgn > 0)
 					{
 						if (value > shipImpulse)
 						{
@@ -87,12 +100,12 @@ public class Processor
 							server.send(new HelmSetImpulsePacket(value));
 						}
 					}
-					else if (value < 0)
+					else if (sgn < 0)
 					{
-						if (shipImpulse > 1 + value)
+						if (shipImpulse > 1 - value)
 						{
-							shipImpulse = 1 + value;
-							server.send(new HelmSetImpulsePacket(1 + value));
+							shipImpulse = 1 - value;
+							server.send(new HelmSetImpulsePacket(1 - value));
 						}
 					}
 					break;

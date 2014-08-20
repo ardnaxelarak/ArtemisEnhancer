@@ -2,6 +2,8 @@
 	<property name="src" location="src"/>
 	<property name="build" location="build"/>
 	<property name="lib" location="lib"/>
+	<property name="one-jar.dist.dir" value="/usr/lib/one-jar-ant"/>
+	<import file="${one-jar.dist.dir}/one-jar-ant-task.xml" optional="true" />
 
 	<path id="project.classpath">
 		<pathelement location="${src}"/>
@@ -43,5 +45,23 @@
 				<attribute name="Class-Path" value="${manifest.classpath}"/>
 			</manifest>
 		</jar>
+	</target>
+
+	<target name="one-jar" depends="jar">
+		<one-jar destfile="artnav-onejar.jar">
+			<manifest>
+				<attribute name="Built-By" value="${builder}" />
+				<attribute name="Built-On" value="${build-info.current-date}" />
+				<attribute name="Built-At" value="${build-info.current-time}" />
+				<attribute name="Main-Class" value="Launcher"/>
+			</manifest>
+			<main jar="artnav-0.1.jar"/>
+			<lib>
+				<fileset dir="${lib}" includes="*.jar"/>
+			</lib>
+			<binlib>
+				<fileset dir="${lib}" includes="*.so"/>
+			</binlib>
+		</one-jar>
 	</target>
 </project>
