@@ -4,6 +4,7 @@
 	<property name="buildPath.classes" value="${buildPath}/classes"/>
 	<property name="libPath" value="lib"/>
 	<property name="version" value="0.0.5"/>
+	<property name="jarname" value="artnav-${version}.jar"/>
 
 	<property name="one-jar.dist.dir" value="/usr/local/lib/one-jar-ant"/>
 	<import file="${one-jar.dist.dir}/one-jar-ant-task.xml" optional="true"/>
@@ -40,7 +41,7 @@
 	</target>
 
 	<target name="jar" depends="compile">
-		<jar basedir="${buildPath.classes}" destfile="${buildPath}/artnav-${version}.jar">
+		<jar basedir="${buildPath.classes}" destfile="${buildPath}/${jarname}">
 			<manifest>
 				<attribute name="Built-By" value="${builder}" />
 				<attribute name="Built-On" value="${build-info.current-date}" />
@@ -59,7 +60,7 @@
 				<attribute name="Built-At" value="${build-info.current-time}" />
 				<attribute name="Main-Class" value="Launcher"/>
 			</manifest>
-			<main jar="artnav-0.1.jar"/>
+			<main jar="${buildPath}/${jarname}"/>
 			<lib>
 				<fileset dir="${libPath}" includes="*.jar"/>
 			</lib>
