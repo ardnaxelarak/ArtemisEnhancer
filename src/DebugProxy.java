@@ -95,24 +95,26 @@ public class DebugProxy implements Runnable
 			ConnectionType type = pkt.getConnectionType();
 			ArtemisNetworkInterface dest = type == ConnectionType.SERVER ? client : server;
 			dest.send(pkt);
-			if ((dest == server && printServer) ||
-				(dest == client && printClient))
+			if ((dest == server && printClient) ||
+				(dest == client && printServer))
 			{
 				System.out.println(pkt);
 			}
 		}
 
+/*
 		@Listener
 		public void onPacket(RawPacket pkt)
 		{
 			ConnectionType type = pkt.getConnectionType();
 			ArtemisNetworkInterface dest = type == ConnectionType.SERVER ? client : server;
 			dest.send(pkt);
-			if ((dest == server && printServer) ||
-				(dest == client && printClient))
+			if ((dest == server && printClient && !parseClient) ||
+				(dest == client && printServer && !parseServer))
 			{
 				System.out.println(pkt);
 			}
 		}
+*/
 	}
 }
