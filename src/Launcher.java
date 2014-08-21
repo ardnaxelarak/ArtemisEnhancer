@@ -13,15 +13,23 @@ public class Launcher
 	{
 		OptionParser parser = new OptionParser();
 		OptionSpec<Integer> port = parser.acceptsAll(asList("p", "port"), "port to connect to").withRequiredArg().describedAs("port").ofType(Integer.class).defaultsTo(2010);
-		OptionSpec<String> host = parser.acceptsAll(asList("s", "server", "host"), "hostname of server").withRequiredArg().ofType(String.class).describedAs("hostname").required();
+		OptionSpec<String> host = parser.acceptsAll(asList("h", "host", "hostname"), "hostname of server").withRequiredArg().ofType(String.class).describedAs("hostname").required();
 		OptionSpec<Integer> proxy = parser.acceptsAll(asList("P", "proxy"), "run as proxy listening on specified port").withOptionalArg().ofType(Integer.class).describedAs("port").defaultsTo(2010);
-		parser.acceptsAll(asList("h", "?"), "show help").forHelp();
+		OptionSpec<Integer> debug = parser.acceptsAll(asList("D", "debug"), "run as debug proxy printing parsed packets").withOptionalArg().ofType(Integer.class).describedAs("port").defaultsTo(2010);
+		OptionSpec<Integer> rawdebug = parser.acceptsAll(asList("R", "rawdebug"), "run as debug proxy printing unparsed packets").withOptionalArg().ofType(Integer.class).describedAs("port").defaultsTo(2010);
+		parser.acceptsAll(asList("c", "client"), "print packets from client");
+		parser.acceptsAll(asList("s", "server"), "print packets from server");
+		parser.acceptsAll(asList("?", "help"), "show help").forHelp();
 
 		try
 		{
 			OptionSet options = parser.parse(args);
 			if (options.has(proxy))
 				new Thread(new HelmProxy(options.valueOf(host), options.valueOf(port), options.valueOf(proxy))).start();
+			else if (options.has(debug))
+				new Thread(new DebugProxy(options.valueOf(host), options.valueOf(port), options.valueOf(debug), true, true, options.has("client"), options.has("server"))).start();
+			else if (options.has(rawdebug))
+				new Thread(new DebugProxy(options.valueOf(host), options.valueOf(port), options.valueOf(rawdebug), false, false, options.has("client"), options.has("server"))).start();
 			else
 				new HelmController(options.valueOf(host), options.valueOf(port));
 		}
