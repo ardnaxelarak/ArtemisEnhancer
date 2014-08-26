@@ -34,7 +34,7 @@ public class Launcher
 			else if (options.has(rawdebug))
 				new Thread(new DebugProxy(options.valueOf(host), options.valueOf(port), options.valueOf(rawdebug), false, false, options.has("client"), options.has("server"))).start();
 			else if (options.has("display"))
-				PApplet.main(new String[] {"Display2"});
+				new DispLauncher(options.valueOf(host), options.valueOf(port));
 			else
 				new HelmController(options.valueOf(host), options.valueOf(port));
 		}
