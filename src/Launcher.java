@@ -7,6 +7,8 @@ import joptsimple.OptionSpec;
 
 import static java.util.Arrays.asList;
 
+import processing.core.PApplet;
+
 public class Launcher
 {
 	public static void main(String[] args) throws IOException
@@ -19,6 +21,7 @@ public class Launcher
 		OptionSpec<Integer> rawdebug = parser.acceptsAll(asList("R", "rawdebug"), "run as debug proxy printing unparsed packets").withOptionalArg().ofType(Integer.class).describedAs("port").defaultsTo(2010);
 		parser.acceptsAll(asList("c", "client"), "print packets from client");
 		parser.acceptsAll(asList("s", "server"), "print packets from server");
+		parser.acceptsAll(asList("display"), "print packets from server");
 		parser.acceptsAll(asList("?", "help"), "show help").forHelp();
 
 		try
@@ -30,6 +33,8 @@ public class Launcher
 				new Thread(new DebugProxy(options.valueOf(host), options.valueOf(port), options.valueOf(debug), true, true, options.has("client"), options.has("server"))).start();
 			else if (options.has(rawdebug))
 				new Thread(new DebugProxy(options.valueOf(host), options.valueOf(port), options.valueOf(rawdebug), false, false, options.has("client"), options.has("server"))).start();
+			else if (options.has("display"))
+				PApplet.main(new String[] {"Display2"});
 			else
 				new HelmController(options.valueOf(host), options.valueOf(port));
 		}
