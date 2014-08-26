@@ -35,7 +35,8 @@ public class Display extends PApplet
 {
 	private ArtemisNetworkInterface server;
 	private SystemManager sm;
-	private PImage imUnknown, imRadar, imMine, imAsteroid, imBase;
+	private PImage imUnknown, imRadar, imMine, imAsteroid, imBase,
+				   imSciTarget, imWeapTarget;
 	private HashMap<String, PImage> imShipMap;
 	private float sc = 0.1f;
 
@@ -86,6 +87,8 @@ public class Display extends PApplet
 		imMine = loadImage("images/icon-mine.png");
 		imAsteroid = loadImage("images/icon-asteroid.png");
 		imBase = loadImage("images/stationIcon.png");
+		imSciTarget = loadImage("images/scienceReticle.png");
+		imWeapTarget = loadImage("images/targetReticle2.png");
 		imShipMap = new HashMap<String, PImage>();
 	}
 
@@ -199,14 +202,57 @@ public class Display extends PApplet
 		float imgWidth = imgHeight * img.width / img.height;
 		image(img, 0, 0, imgWidth, imgHeight);
 		noTint();
+		rotate(PI - heading);
 		if (!ownShip)
 		{
-			rotate(PI - heading);
-			text(obj.getName(), 0, -25);
-			text(String.format("%03.0f", degrees(bearing > 0 ? bearing : TWO_PI + bearing)), -30, 20);
-			text(String.format("%4.0f", dist), 30, 20);
+			pushStyle();
+			textSize(18);
+			text(obj.getName(), 0, -40);
+			text(String.format("%03.0f", degrees(bearing > 0 ? bearing : TWO_PI + bearing)), -30, 38);
+			text(String.format("%4.0f", dist), 30, 38);
+			popStyle();
 		}
 
+		popMatrix();
+	}
+
+	private void drawReticule(ArtemisObject obj, boolean sciTarget,
+							  boolean capTarget, boolean weapTarget)
+	{
+		pushMatrix();
+		translate(obj.getX(), obj.getZ());
+		scale(-1 / sc, 1 / sc);
+		if (sciTarget)
+		{
+			tint(29, 161, 55);
+			float size = 64;
+			int num = (millis() % 500) / 25;
+			if (num > 10)
+				num = 20 - num;
+			size += num;
+			image(imSciTarget, 0, 0, size, size);
+			noTint();
+		}
+		if (capTarget)
+		{
+			tint(128, 235, 61);
+			int num = (millis() % 3600) / 10;
+			pushMatrix();
+			rotate(-radians(num));
+			image(imSciTarget, 0, 0, 64, 64);
+			popMatrix();
+			noTint();
+		}
+		if (weapTarget)
+		{
+			tint(255, 0, 0);
+			int num = (millis() % 7200) / 20;
+			pushMatrix();
+			rotate(radians(num));
+			image(imWeapTarget, 0, 0, 64, 64);
+			popMatrix();
+			noTint();
+		}
 		popMatrix();
 	}
 
@@ -249,28 +295,6 @@ public class Display extends PApplet
 
 		drawShip(p, 0, 0, true);
 
-		/*
-		float heading = p.getHeading();
-		Vessel v = p.getVessel();
-		pushMatrix();
-		rotate(PI - heading);
-		stroke(0, 0, 170);
-		line(0, 0, 0, -200 / sc);
-		pushMatrix();
-		scale(0.2f / sc, 0.2f / sc);
-		smooth();
-		tint(242, 252, 43);
-		image(getShipIcon(v), 0, 0);
-		noSmooth();
-		popMatrix();
-		stroke(255, 0, 0);
-		noFill();
-		// noSmooth();
-		drawArcs(v);
-		// smooth();
-		popMatrix();
-		*/
-
 		// return origin
 		popMatrix();
 		List<ArtemisObject> objs = new LinkedList<ArtemisObject>();
@@ -309,9 +333,15 @@ public class Display extends PApplet
 				case NPC_SHIP:
 					drawShip((ArtemisNpc)obj,
 							 dist(px, py, obj.getX(), obj.getZ()),
-							 -atan2(obj.getX() - px, py - obj.getZ()), false);
+							 -atan2(obj.getX() - px, py - obj.getZ()),
+							 false);
 					break;
 			}
+			boolean sciTarget = obj.getId() == p.getScienceTarget(),
+					capTarget = obj.getId() == p.getCaptainTarget(),
+					weaTarget = false;
+			if (sciTarget || capTarget || weaTarget)
+				drawReticule(obj, sciTarget, capTarget, weaTarget);
 		}
 		noSmooth();
 	}
