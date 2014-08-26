@@ -20,10 +20,12 @@ import net.dhleong.acl.world.ArtemisBase;
 import net.dhleong.acl.world.ArtemisNpc;
 import net.dhleong.acl.world.ArtemisObject;
 import net.dhleong.acl.world.ArtemisPlayer;
+import net.dhleong.acl.world.BaseArtemisShip;
 import net.dhleong.acl.world.SystemManager;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.HashMap;
 
 import java.awt.Dimension;
 
@@ -33,7 +35,8 @@ public class Display extends PApplet
 {
 	private ArtemisNetworkInterface server;
 	private SystemManager sm;
-	private PImage imShip, imRadar, imMine, imAsteroid, imBase;
+	private PImage imUnknown, imRadar, imMine, imAsteroid, imBase;
+	private HashMap<String, PImage> imShipMap;
 	private float sc = 0.1f;
 
 	public Display(String host, int port)
@@ -78,11 +81,12 @@ public class Display extends PApplet
 
 	private void loadImages()
 	{
-		imShip = loadImage("images/clientShipIcon.png");
+		imUnknown = loadImage("images/clientShipIcon.png");
 		imRadar = loadImage("images/radar2.png");
 		imMine = loadImage("images/icon-mine.png");
 		imAsteroid = loadImage("images/icon-asteroid.png");
 		imBase = loadImage("images/stationIcon.png");
+		imShipMap = new HashMap<String, PImage>();
 	}
 
 	private void drawImage(float angle, float x, float y, float sc, PImage image)
@@ -115,43 +119,93 @@ public class Display extends PApplet
 		}
 	}
 
-	private void drawShip(ArtemisNpc obj, PImage img, float dist, float bearing)
+	private PImage getShipIcon(Vessel v)
+	{
+		if (v == null)
+			return imUnknown;
+		String meshfile = v.getMeshFile();
+		if (imShipMap.containsKey(meshfile))
+			return imShipMap.get(meshfile);
+		PImage img = loadImage(meshfile.replace(".dxs", "-icon.png"));
+		println(meshfile.replace(".dxs", "-icon.png"));
+		imShipMap.put(meshfile, img);
+		return img;
+	}
+
+	private void drawShip(BaseArtemisShip obj, float dist, float bearing, boolean ownShip)
 	{
 		pushMatrix();
 		noSmooth();
-		translate(obj.getX(), obj.getZ());
+		if (!ownShip)
+			translate(obj.getX(), obj.getZ());
 		float heading = obj.getHeading();
 		rotate(PI - heading);
-		/*
-		stroke(0, 0, 170);
-		line(0, 0, 0, -200 / sc);
-		*/
-		if (obj.isSurrendered() != BoolState.TRUE)
+		if (ownShip)
 		{
-			Vessel v = obj.getVessel();
+			stroke(0, 0, 170);
+			line(0, 0, 0, -200 / sc);
+		}
+		Vessel v = obj.getVessel();
+		if (obj.getType() == ObjectType.PLAYER_SHIP)
+		{
 			if (v != null)
 			{
 				stroke(26, 196, 176);
 				noFill();
 				drawArcs(v);
 			}
-			tint(255, 0, 0);
-			fill(255, 0, 0);
+			tint(242, 252, 43);
+			fill(242, 252, 43);
 		}
 		else
 		{
-			tint(200, 209, 25);
-			fill(200, 209, 25);
+			ArtemisNpc o = (ArtemisNpc)obj;
+			if (o.isSurrendered() != BoolState.TRUE)
+			{
+				if (o.isEnemy() == BoolState.FALSE)
+				{
+					if (v != null)
+					{
+						stroke(26, 196, 176);
+						noFill();
+						drawArcs(v);
+					}
+					tint(106, 226, 252);
+					fill(106, 226, 252);
+				}
+				else
+				{
+					if (v != null)
+					{
+						stroke(26, 196, 176);
+						noFill();
+						drawArcs(v);
+					}
+					tint(255, 0, 0);
+					fill(255, 0, 0);
+				}
+			}
+			else
+			{
+				tint(200, 209, 25);
+				fill(200, 209, 25);
+			}
 		}
 		smooth();
 
 		scale(-1 / sc, 1 / sc);
-		image(img, 0, 0, 25, 25);
+		PImage img = getShipIcon(v);
+		float imgHeight = 40.5f;
+		float imgWidth = imgHeight * img.width / img.height;
+		image(img, 0, 0, imgWidth, imgHeight);
 		noTint();
-		rotate(PI - heading);
-		text(obj.getName(), 0, -25);
-		text(String.format("%03.0f", degrees(bearing > 0 ? bearing : TWO_PI + bearing)), -30, 20);
-		text(String.format("%4.0f", dist), 30, 20);
+		if (!ownShip)
+		{
+			rotate(PI - heading);
+			text(obj.getName(), 0, -25);
+			text(String.format("%03.0f", degrees(bearing > 0 ? bearing : TWO_PI + bearing)), -30, 20);
+			text(String.format("%4.0f", dist), 30, 20);
+		}
 
 		popMatrix();
 	}
@@ -193,22 +247,29 @@ public class Display extends PApplet
 		image(imRadar, 0, 0);
 		popMatrix();
 
+		drawShip(p, 0, 0, true);
+
+		/*
 		float heading = p.getHeading();
+		Vessel v = p.getVessel();
 		pushMatrix();
 		rotate(PI - heading);
 		stroke(0, 0, 170);
 		line(0, 0, 0, -200 / sc);
 		pushMatrix();
 		scale(0.2f / sc, 0.2f / sc);
-		image(imShip, 0, 0);
+		smooth();
+		tint(242, 252, 43);
+		image(getShipIcon(v), 0, 0);
+		noSmooth();
 		popMatrix();
-		Vessel v = p.getVessel();
 		stroke(255, 0, 0);
 		noFill();
 		// noSmooth();
 		drawArcs(v);
 		// smooth();
 		popMatrix();
+		*/
 
 		// return origin
 		popMatrix();
@@ -225,7 +286,7 @@ public class Display extends PApplet
 				case ASTEROID:
 					pushMatrix();
 					translate(obj.getX(), obj.getZ());
-					rotate(degrees(obj.getY()));
+					rotate(radians(obj.getY()));
 					scale(1, -1);
 					tint(254, 149, 80);
 					image(imAsteroid, 0, 0, 350, 350);
@@ -246,9 +307,9 @@ public class Display extends PApplet
 					popMatrix();
 					break;
 				case NPC_SHIP:
-					drawShip((ArtemisNpc)obj, imShip,
+					drawShip((ArtemisNpc)obj,
 							 dist(px, py, obj.getX(), obj.getZ()),
-							 -atan2(obj.getX() - px, py - obj.getZ()));
+							 -atan2(obj.getX() - px, py - obj.getZ()), false);
 					break;
 			}
 		}
@@ -262,7 +323,14 @@ public class Display extends PApplet
 			List<ArtemisObject> objs = new LinkedList<ArtemisObject>();
 			sm.getAll(objs);
 			for (ArtemisObject obj: objs)
+			{
+				if (obj.getType() == ObjectType.MINE ||
+					obj.getType() == ObjectType.ASTEROID ||
+					obj.getType() == ObjectType.BASE ||
+					obj.getType() == ObjectType.NPC_SHIP)
+					continue;
 				System.out.printf("%20s %s\n", obj.getType(), obj.getClass());
+			}
 		}
 		if (key == 'a')
 		{
