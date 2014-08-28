@@ -21,6 +21,7 @@ import net.dhleong.acl.world.ArtemisNebula;
 import net.dhleong.acl.world.ArtemisNpc;
 import net.dhleong.acl.world.ArtemisObject;
 import net.dhleong.acl.world.ArtemisPlayer;
+import net.dhleong.acl.world.ArtemisWhale;
 import net.dhleong.acl.world.BaseArtemisShip;
 import net.dhleong.acl.world.SystemManager;
 
@@ -36,6 +37,7 @@ public class Display extends PApplet
 {
 	private ArtemisNetworkInterface server;
 	private SystemManager sm;
+	private ArtemisPlayer pl;
 	private PImage imUnknown, imRadar, imMine, imAsteroid, imBase,
 				   imSciTarget, imWeapTarget, imNebula;
 	private HashMap<String, PImage> imShipMap;
@@ -47,6 +49,7 @@ public class Display extends PApplet
 		{
 			server = new ThreadedArtemisNetworkInterface(host, port);
 			sm = new SystemManager();
+			pl = null;
 			server.addListener(sm);
 			server.addListener(this);
 			server.start();
@@ -214,6 +217,44 @@ public class Display extends PApplet
 		popStyle();
 	}
 
+	private void drawWhale(ArtemisWhale obj, float dist)
+	{
+		pushMatrix();
+		pushStyle();
+		translate(obj.getX(), obj.getZ());
+		float heading = obj.getHeading();
+		rotate(PI - heading);
+		tint(16, 227, 143);
+		fill(16, 227, 143);
+
+		scale(-1 / sc, 1 / sc);
+		PImage img = imUnknown;
+		image(img, 0, 0, 20, 20);
+		rotate(PI - heading);
+		textSize(16);
+		text(obj.getName(), 0, -35);
+		text(String.format("%4.0f", dist), 0, 30);
+
+		popMatrix();
+		popStyle();
+	}
+
+	private void drawMonster(ArtemisObject obj, float dist)
+	{
+		pushMatrix();
+		pushStyle();
+		translate(obj.getX(), obj.getZ());
+		scale(-1 / sc, 1 / sc);
+		tint(161, 31, 204);
+		image(imBase, 0, 0, 25, 25);
+		fill(161, 31, 204);
+		textSize(18);
+		text(obj.getName(), 0, -25);
+		text(String.format("%.0f", dist), 0, 20);
+		popStyle();
+		popMatrix();
+	}
+
 	private void drawBase(ArtemisBase obj, float dist)
 	{
 		pushMatrix();
@@ -278,11 +319,12 @@ public class Display extends PApplet
 		textAlign(LEFT, BOTTOM);
 		text(String.format("%3.1f", frameRate), 10, height - 10);
 		textAlign(CENTER, CENTER);
-		ArtemisPlayer p = sm.getPlayerShip(0);
-		if (p == null)
+		if (pl == null)
+			pl = sm.getPlayerShip(0);
+		if (pl == null)
 			return;
 
-		float px = p.getX(), py = p.getZ();
+		float px = pl.getX(), py = pl.getZ();
 		// println(String.format("%.1f %.1f %.1f", p.getX(), p.getY(), p.getZ()));
 		translate(width / 2f, height / 2f);
 		scale(-sc, sc);
@@ -327,7 +369,7 @@ public class Display extends PApplet
 		image(imRadar, 0, 0);
 		popMatrix();
 
-		drawShip(p, 0, 0, true);
+		drawShip(pl, 0, 0, true);
 
 		// return origin
 		popMatrix();
@@ -340,9 +382,9 @@ public class Display extends PApplet
 			dist = dist(px, py, obj.getX(), obj.getZ());
 			if (dist > 8000)
 				continue;
-			boolean sciTarget = obj.getId() == p.getScienceTarget(),
-					capTarget = obj.getId() == p.getCaptainTarget(),
-					weaTarget = obj.getId() == p.getWeaponsTarget();
+			boolean sciTarget = obj.getId() == pl.getScienceTarget(),
+					capTarget = obj.getId() == pl.getCaptainTarget(),
+					weaTarget = obj.getId() == pl.getWeaponsTarget();
 			if (sciTarget || capTarget || weaTarget)
 				drawReticule(obj, sciTarget, capTarget, weaTarget);
 			switch (obj.getType())
@@ -376,6 +418,12 @@ public class Display extends PApplet
 				case BASE:
 					drawBase((ArtemisBase)obj, dist);
 					break;
+				case WHALE:
+					drawWhale((ArtemisWhale)obj, dist);
+					break;
+				case MONSTER:
+					drawMonster(obj, dist);
+					break;
 				case NPC_SHIP:
 					drawShip((ArtemisNpc)obj, dist,
 							 -atan2(obj.getX() - px, py - obj.getZ()),
@@ -401,6 +449,7 @@ public class Display extends PApplet
 					obj.getType() == ObjectType.TORPEDO ||
 					obj.getType() == ObjectType.NEBULA ||
 					obj.getType() == ObjectType.ANOMALY ||
+					obj.getType() == ObjectType.WHALE ||
 					obj.getType() == ObjectType.NPC_SHIP)
 					continue;
 				System.out.printf("%20s %s\n", obj.getType(), obj.getClass());
@@ -409,6 +458,12 @@ public class Display extends PApplet
 		if (key == 'a')
 		{
 			ArtemisObject a = sm.getObjects(ObjectType.ASTEROID).get(0);
+			System.out.println(a);
+		}
+		if (key == 's' && pl != null)
+		{
+			System.out.println(pl.getScienceTarget());
+			ArtemisObject a = sm.getObject(pl.getScienceTarget());
 			System.out.println(a);
 		}
 		if (key == ESC)
