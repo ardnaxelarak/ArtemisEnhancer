@@ -17,6 +17,7 @@ import net.dhleong.acl.protocol.ArtemisPacket;
 import net.dhleong.acl.vesseldata.Vessel;
 import net.dhleong.acl.vesseldata.BeamPort;
 import net.dhleong.acl.world.ArtemisBase;
+import net.dhleong.acl.world.ArtemisNebula;
 import net.dhleong.acl.world.ArtemisNpc;
 import net.dhleong.acl.world.ArtemisObject;
 import net.dhleong.acl.world.ArtemisPlayer;
@@ -36,7 +37,7 @@ public class Display extends PApplet
 	private ArtemisNetworkInterface server;
 	private SystemManager sm;
 	private PImage imUnknown, imRadar, imMine, imAsteroid, imBase,
-				   imSciTarget, imWeapTarget;
+				   imSciTarget, imWeapTarget, imNebula;
 	private HashMap<String, PImage> imShipMap;
 	private float sc = 0.1f;
 
@@ -89,6 +90,7 @@ public class Display extends PApplet
 		imBase = loadImage("images/stationIcon.png");
 		imSciTarget = loadImage("images/scienceReticle.png");
 		imWeapTarget = loadImage("images/targetReticle2.png");
+		imNebula = loadImage("images/icon-nebula.png");
 		imShipMap = new HashMap<String, PImage>();
 	}
 
@@ -130,7 +132,6 @@ public class Display extends PApplet
 		if (imShipMap.containsKey(meshfile))
 			return imShipMap.get(meshfile);
 		PImage img = loadImage(meshfile.replace(".dxs", "-icon.png"));
-		println(meshfile.replace(".dxs", "-icon.png"));
 		imShipMap.put(meshfile, img);
 		return img;
 	}
@@ -138,7 +139,9 @@ public class Display extends PApplet
 	private void drawShip(BaseArtemisShip obj, float dist, float bearing, boolean ownShip)
 	{
 		pushMatrix();
+		pushStyle();
 		noSmooth();
+		noFill();
 		if (!ownShip)
 			translate(obj.getX(), obj.getZ());
 		float heading = obj.getHeading();
@@ -154,7 +157,6 @@ public class Display extends PApplet
 			if (v != null)
 			{
 				stroke(26, 196, 176);
-				noFill();
 				drawArcs(v);
 			}
 			tint(242, 252, 43);
@@ -170,7 +172,6 @@ public class Display extends PApplet
 					if (v != null)
 					{
 						stroke(26, 196, 176);
-						noFill();
 						drawArcs(v);
 					}
 					tint(106, 226, 252);
@@ -181,7 +182,6 @@ public class Display extends PApplet
 					if (v != null)
 					{
 						stroke(26, 196, 176);
-						noFill();
 						drawArcs(v);
 					}
 					tint(255, 0, 0);
@@ -201,18 +201,32 @@ public class Display extends PApplet
 		float imgHeight = 40.5f;
 		float imgWidth = imgHeight * img.width / img.height;
 		image(img, 0, 0, imgWidth, imgHeight);
-		noTint();
 		rotate(PI - heading);
 		if (!ownShip)
 		{
-			pushStyle();
 			textSize(18);
 			text(obj.getName(), 0, -40);
 			text(String.format("%03.0f", degrees(bearing > 0 ? bearing : TWO_PI + bearing)), -30, 38);
 			text(String.format("%4.0f", dist), 30, 38);
-			popStyle();
 		}
 
+		popMatrix();
+		popStyle();
+	}
+
+	private void drawBase(ArtemisBase obj, float dist)
+	{
+		pushMatrix();
+		pushStyle();
+		translate(obj.getX(), obj.getZ());
+		scale(-1 / sc, 1 / sc);
+		tint(242, 252, 43);
+		image(imBase, 0, 0, 25, 25);
+		fill(242, 252, 43);
+		textSize(18);
+		text(obj.getName(), 0, -25);
+		text(String.format("%.0f", dist), 0, 20);
+		popStyle();
 		popMatrix();
 	}
 
@@ -273,18 +287,38 @@ public class Display extends PApplet
 		translate(width / 2f, height / 2f);
 		scale(-sc, sc);
 		translate(-px, -py);
-		noFill();
 		stroke(0, 0, 255);
 		for (int i = 0; i < 6; i++)
 		{
 			line(0, i * 20000, 100000, i * 20000);
 			line(i * 20000, 0, i * 20000, 100000);
 		}
-		stroke(100);
+
+		List<ArtemisObject> objs = new LinkedList<ArtemisObject>();
+		// draw nebulas
+		objs = sm.getObjects(ObjectType.NEBULA);
+		pushStyle();
+		smooth();
+		float dist;
+		for (ArtemisObject obj : objs)
+		{
+			dist = dist(px, py, obj.getX(), obj.getZ());
+			if (dist > 8000)
+				continue;
+			ArtemisNebula o = (ArtemisNebula)obj;
+			if (o.hasColor())
+				tint(o.getRed(), o.getGreen(), o.getBlue(), 150);
+			else
+				tint(165, 14, 235, 150);
+			image(imNebula, o.getX(), o.getZ(), 5000, 5000);
+		}
+		popStyle();
 
 		// move origin to player ship
 		pushMatrix();
 		translate(px, py);
+		stroke(100);
+		noFill();
 		ellipse(0, 0, 5000, 5000);
 
 		// draw radar
@@ -297,15 +331,37 @@ public class Display extends PApplet
 
 		// return origin
 		popMatrix();
-		List<ArtemisObject> objs = new LinkedList<ArtemisObject>();
+		objs.clear();
 		sm.getAll(objs);
 		smooth();
+		pushStyle();
 		for (ArtemisObject obj : objs)
 		{
+			dist = dist(px, py, obj.getX(), obj.getZ());
+			if (dist > 8000)
+				continue;
+			boolean sciTarget = obj.getId() == p.getScienceTarget(),
+					capTarget = obj.getId() == p.getCaptainTarget(),
+					weaTarget = obj.getId() == p.getWeaponsTarget();
+			if (sciTarget || capTarget || weaTarget)
+				drawReticule(obj, sciTarget, capTarget, weaTarget);
 			switch (obj.getType())
 			{
 				case MINE:
 					image(imMine, obj.getX(), obj.getZ(), 12.8f / sc, 12.8f / sc);
+					break;
+				case ANOMALY:
+					if (millis() % 500 >= 250)
+					{
+						stroke(255);
+						fill(255);
+						ellipse(obj.getX(), obj.getZ(), 1 / sc, 1 / sc);
+					}
+					break;
+				case TORPEDO:
+					stroke(200, 0, 0);
+					fill(200, 0, 0);
+					ellipse(obj.getX(), obj.getZ(), 2 / sc, 2 / sc);
 					break;
 				case ASTEROID:
 					pushMatrix();
@@ -318,31 +374,16 @@ public class Display extends PApplet
 					popMatrix();
 					break;
 				case BASE:
-					ArtemisBase o = (ArtemisBase)obj;
-					pushMatrix();
-					translate(o.getX(), o.getZ());
-					scale(-1 / sc, 1 / sc);
-					tint(242, 252, 43);
-					image(imBase, 0, 0, 25, 25);
-					fill(242, 252, 43);
-					text(o.getName(), 0, -20);
-					text(String.format("%.0f", dist(px, py, o.getX(), o.getZ())), 0, 20);
-					noTint();
-					popMatrix();
+					drawBase((ArtemisBase)obj, dist);
 					break;
 				case NPC_SHIP:
-					drawShip((ArtemisNpc)obj,
-							 dist(px, py, obj.getX(), obj.getZ()),
+					drawShip((ArtemisNpc)obj, dist,
 							 -atan2(obj.getX() - px, py - obj.getZ()),
 							 false);
 					break;
 			}
-			boolean sciTarget = obj.getId() == p.getScienceTarget(),
-					capTarget = obj.getId() == p.getCaptainTarget(),
-					weaTarget = false;
-			if (sciTarget || capTarget || weaTarget)
-				drawReticule(obj, sciTarget, capTarget, weaTarget);
 		}
+		popStyle();
 		noSmooth();
 	}
 
@@ -357,6 +398,9 @@ public class Display extends PApplet
 				if (obj.getType() == ObjectType.MINE ||
 					obj.getType() == ObjectType.ASTEROID ||
 					obj.getType() == ObjectType.BASE ||
+					obj.getType() == ObjectType.TORPEDO ||
+					obj.getType() == ObjectType.NEBULA ||
+					obj.getType() == ObjectType.ANOMALY ||
 					obj.getType() == ObjectType.NPC_SHIP)
 					continue;
 				System.out.printf("%20s %s\n", obj.getType(), obj.getClass());
