@@ -11,6 +11,7 @@ import net.dhleong.acl.util.BoolState;
 import net.dhleong.acl.enums.ObjectType;
 import net.dhleong.acl.vesseldata.Vessel;
 import net.dhleong.acl.world.ArtemisBase;
+import net.dhleong.acl.world.ArtemisDrone;
 import net.dhleong.acl.world.ArtemisNebula;
 import net.dhleong.acl.world.ArtemisNpc;
 import net.dhleong.acl.world.ArtemisObject;
@@ -21,6 +22,7 @@ import net.dhleong.acl.world.SystemManager;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.HashMap;
 
 import processing.core.PApplet;
@@ -34,7 +36,7 @@ public class GraphicsHandler
 	private GraphicsSettings gs;
 	private GraphicsElements ge;
 	private PImage imUnknown, imRadar, imMine, imAsteroid, imBase,
-				   imSciTarget, imWeapTarget, imNebula;
+				   imSciTarget, imWeapTarget, imNebula, imBlackHole;
 	private HashMap<String, PImage> imShipMap;
 	private float sc = 0.1f;
 
@@ -58,6 +60,7 @@ public class GraphicsHandler
 		imSciTarget = d.loadImage("images/scienceReticle.png");
 		imWeapTarget = d.loadImage("images/targetReticle2.png");
 		imNebula = d.loadImage("images/icon-nebula.png");
+		imBlackHole = d.loadImage("images/icon-blackhole.png");
 		imShipMap = new HashMap<String, PImage>();
 	}
 
@@ -158,6 +161,12 @@ public class GraphicsHandler
 			case WHALE:
 				ge.drawWhale((ArtemisWhale)obj, imUnknown, dist);
 				break;
+			case DRONE:
+				ge.drawDrone((ArtemisDrone)obj, imUnknown, dist);
+				break;
+			case BLACK_HOLE:
+				ge.drawBlackHole(obj, imBlackHole);
+				break;
 			case MONSTER:
 				ge.drawMonster(obj, imBase, dist);
 				break;
@@ -197,16 +206,41 @@ public class GraphicsHandler
 
 		List<ArtemisObject> objs = new LinkedList<ArtemisObject>();
 		// draw nebulas
-		objs = sm.getObjects(ObjectType.NEBULA);
+		sm.getAll(objs);
 		d.pushStyle();
 		d.smooth();
-		float dist;
-		for (ArtemisObject obj : objs)
+		float dist, maxDist;
+		maxDist = d.dist(0, 0, d.width, d.height) / sc * 0.5f;
+		ListIterator<ArtemisObject> li = objs.listIterator(0);
+		while (li.hasNext())
 		{
-			dist = d.dist(px, pz, obj.getX(), obj.getZ());
-			if (dist > d.width / sc)
+			ArtemisObject obj = li.next();
+			if (obj == pl)
+			{
+				li.remove();
 				continue;
-			ge.drawNebula((ArtemisNebula)obj, imNebula);
+			}
+			dist = d.dist(px, pz, obj.getX(), obj.getZ());
+			if (dist > maxDist)
+			{
+				li.remove();
+				continue;
+			}
+			switch (obj.getType())
+			{
+				case NEBULA:
+					ge.drawNebula((ArtemisNebula)obj, imNebula);
+					li.remove();
+					break;
+				case BLACK_HOLE:
+					ge.drawBlackHole(obj, imBlackHole);
+					li.remove();
+					break;
+				case MINE:
+					ge.drawMine(obj, imMine);
+					li.remove();
+					break;
+			}
 		}
 		d.popStyle();
 
@@ -227,22 +261,16 @@ public class GraphicsHandler
 
 		// return origin
 		d.popMatrix();
-		objs.clear();
-		sm.getAll(objs);
 		d.smooth();
 		d.pushStyle();
 		for (ArtemisObject obj : objs)
 		{
 			dist = d.dist(px, pz, obj.getX(), obj.getZ());
-			if (dist > d.width / sc)
-				continue;
 			boolean sciTarget = obj.getId() == pl.getScienceTarget(),
 					capTarget = obj.getId() == pl.getCaptainTarget(),
 					weaTarget = obj.getId() == pl.getWeaponsTarget();
 			if (sciTarget || capTarget || weaTarget)
 				drawReticule(obj, sciTarget, capTarget, weaTarget);
-			if (obj == pl)
-				continue;
 			drawObject(obj, dist);
 		}
 		d.popStyle();

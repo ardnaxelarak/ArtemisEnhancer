@@ -132,10 +132,10 @@
 		</FriendlyBase>
 		<EnemyBase width="25" height="25" showShields="0">
 			<Fill>
-				<Color r="242" g="252" b="43"/>
+				<Color r="196" g="0" b="0"/>
 			</Fill>
 			<Text size="18" showBearing="0" showDist="1" showName="1">
-				<Color r="242" g="252" b="43"/>
+				<Color r="196" g="0" b="0"/>
 			</Text>
 		</EnemyBase>
 		<Whale width="20" height="20">
@@ -155,7 +155,7 @@
 			</Text>
 		</Monster>
 		<Nebula width="5000" height="5000">
-			<Fill ignoreColor="0" alpha="150">
+			<Fill ignoreColor="1" alpha="150">
 				<Color r="165" g="14" b="235" a="150"/>
 			</Fill>
 		</Nebula>
@@ -179,5 +179,18 @@
 				<Color r="254" g="149" b="80"/>
 			</Fill>
 		</Asteroid>
+		<BlackHole width="9500" height="9500">
+			<Fill>
+				<Color r="112" g="99" b="255"/>
+			</Fill>
+		</BlackHole>
+		<Drone width="20" height="20">
+			<Fill>
+				<Color r="161" g="120" b="120"/>
+			</Fill>
+			<Text size="16" showDist="1" showName="0">
+				<Color r="161" g="120" b="120"/>
+			</Text>
+		</Drone>
 	</Styles>
 </Settings>

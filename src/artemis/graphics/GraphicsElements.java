@@ -12,6 +12,7 @@ import net.dhleong.acl.util.BoolState;
 import net.dhleong.acl.vesseldata.BeamPort;
 import net.dhleong.acl.vesseldata.Vessel;
 import net.dhleong.acl.world.ArtemisBase;
+import net.dhleong.acl.world.ArtemisDrone;
 import net.dhleong.acl.world.ArtemisNebula;
 import net.dhleong.acl.world.ArtemisNpc;
 import net.dhleong.acl.world.ArtemisObject;
@@ -182,6 +183,31 @@ public class GraphicsElements
 		g.popStyle();
 	}
 
+	public void drawDrone(ArtemisDrone obj, PImage img, float dist)
+	{
+		GraphicStyle st = stDrone;
+		g.pushMatrix();
+		g.pushStyle();
+		g.translate(obj.getX(), obj.getZ());
+		float heading = obj.getHeading();
+		g.rotate(g.PI - heading);
+
+		g.scale(-1 / scale, 1 / scale);
+		g.tint(st.fillColor);
+		g.image(img, 0, 0, st.width, st.height);
+		g.rotate(g.PI - heading);
+
+		g.fill(st.textColor);
+		g.textSize(st.textSize);
+		if (st.showName)
+			g.text(obj.getName(), 0, -35);
+		if (st.showDist)
+			g.text(String.format("%4.0f", dist), 0, 30);
+
+		g.popMatrix();
+		g.popStyle();
+	}
+
 	public void drawMonster(ArtemisObject obj, PImage img, float dist)
 	{
 		GraphicStyle st = stMonster;
@@ -270,6 +296,24 @@ public class GraphicsElements
 		g.rotate(g.radians(obj.getY()));
 		g.scale(1, -1);
 		g.tint(st.fillColor);
+		g.image(img, 0, 0, st.width, st.height);
+		g.popMatrix();
+	}
+
+	public void drawBlackHole(ArtemisObject obj, PImage img)
+	{
+		GraphicStyle st = stBlackHole;
+		g.pushMatrix();
+		g.translate(obj.getX(), obj.getZ());
+		int num = g.millis() % 54000;
+		g.pushMatrix();
+		g.rotate(-g.radians(num / 150f));
+		g.scale(1, -1);
+		g.tint(st.fillColor);
+		g.image(img, 0, 0, st.width, st.height);
+		g.popMatrix();
+		g.rotate(g.radians(num / 150f));
+		g.scale(0.5f, -0.5f);
 		g.image(img, 0, 0, st.width, st.height);
 		g.popMatrix();
 	}
