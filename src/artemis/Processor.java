@@ -1,4 +1,9 @@
+package artemis;
+
 import java.io.IOException;
+
+import javajoystick.Event;
+import javajoystick.Joystick;
 
 import net.dhleong.acl.enums.MainScreenView;
 import net.dhleong.acl.iface.ArtemisNetworkInterface;

@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+<Settings>
+	<Factions>
+		<Faction id="0" shipStyle="PlayerShip" baseStyle="FriendlyBase"/>
+		<Faction id="1" shipStyle="FriendlyShip" baseStyle="FriendlyBase"/>
+		<Faction id="2" shipStyle="KralienShip" baseStyle="EnemyBase"/>
+		<Faction id="3" shipStyle="ArvonianShip" baseStyle="EnemyBase"/>
+		<Faction id="4" shipStyle="TorgothShip" baseStyle="EnemyBase"/>
+		<Faction id="5" shipStyle="SkaraanShip" baseStyle="EnemyBase"/>
+		<Faction id="6" shipStyle="BioMech" baseStyle="EnemyBase"/>
+		<DefaultFaction shipStyle="KralienShip" baseStyle="EnemyBase"/>
+	</Factions>
+	<ShipSettings height="40.5"/>
+	<Styles>
+		<OwnShip showHeading="1" showShields="0" showArcs="1">
+			<Arcs show="1">
+				<Color r="26" g="196" b="176"/>
+			</Arcs>
+			<Fill>
+				<Color r="242" g="252" b="43"/>
+			</Fill>
+			<Text showBearing="0" showDist="0" showName="0">
+				<Color r="242" g="252" b="43"/>
+			</Text>
+		</OwnShip>
+		<KralienShip showHeading="0" showShields="1">
+			<Arcs show="1">
+				<Color r="26" g="196" b="176"/>
+			</Arcs>
+			<Fill>
+				<Color r="196" g="0" b="0"/>
+			</Fill>
+			<Text showBearing="0" showDist="1" showName="1">
+				<Color r="196" g="0" b="0"/>
+			</Text>
+		</KralienShip>
+		<ArvonianShip showHeading="0" showShields="1">
+			<Arcs show="1">
+				<Color r="26" g="196" b="176"/>
+			</Arcs>
+			<Fill>
+				<Color r="196" g="0" b="0"/>
+			</Fill>
+			<Text showBearing="0" showDist="1" showName="1">
+				<Color r="196" g="0" b="0"/>
+			</Text>
+		</ArvonianShip>
+		<TorgothShip showHeading="0" showShields="1">
+			<Arcs show="1">
+				<Color r="26" g="196" b="176"/>
+			</Arcs>
+			<Fill>
+				<Color r="196" g="0" b="0"/>
+			</Fill>
+			<Text showBearing="0" showDist="1" showName="1">
+				<Color r="196" g="0" b="0"/>
+			</Text>
+		</TorgothShip>
+		<SkaraanShip showHeading="0" showShields="1">
+			<Arcs show="1">
+				<Color r="26" g="196" b="176"/>
+			</Arcs>
+			<Fill>
+				<Color r="196" g="0" b="0"/>
+			</Fill>
+			<Text showBearing="0" showDist="1" showName="1">
+				<Color r="196" g="0" b="0"/>
+			</Text>
+		</SkaraanShip>
+		<BioMech showHeading="0" showShields="1">
+			<Arcs show="1">
+				<Color r="26" g="196" b="176"/>
+			</Arcs>
+			<Fill>
+				<Color r="196" g="0" b="0"/>
+			</Fill>
+			<Text showBearing="0" showDist="1" showName="1">
+				<Color r="196" g="0" b="0"/>
+			</Text>
+		</BioMech>
+		<SurrenderedShip showHeading="0" showShields="0">
+			<Arcs show="0">
+				<Color r="26" g="196" b="176"/>
+			</Arcs>
+			<Fill>
+				<Color r="200" g="209" b="25"/>
+			</Fill>
+			<Text showBearing="0" showDist="0" showName="1">
+				<Color r="200" g="209" b="25"/>
+			</Text>
+		</SurrenderedShip>
+		<FriendlyShip showHeading="0" showShields="1">
+			<Arcs show="1">
+				<Color r="26" g="196" b="176"/>
+			</Arcs>
+			<Fill>
+				<Color r="106" g="226" b="252"/>
+			</Fill>
+			<Text showBearing="0" showDist="1" showName="1">
+				<Color r="106" g="226" b="252"/>
+			</Text>
+		</FriendlyShip>
+		<UnscannedShip showHeading="0" showShields="0">
+			<Arcs show="0">
+				<Color r="26" g="196" b="176"/>
+			</Arcs>
+			<Fill>
+				<Color r="190" g="186" b="191"/>
+			</Fill>
+			<Text showBearing="0" showDist="1" showName="1">
+				<Color r="175" g="171" b="176"/>
+			</Text>
+		</UnscannedShip>
+		<PlayerShip showHeading="0" showShields="1">
+			<Arcs show="1">
+				<Color r="26" g="196" b="176"/>
+			</Arcs>
+			<Fill>
+				<Color r="242" g="252" b="43"/>
+			</Fill>
+			<Text showBearing="0" showDist="1" showName="1">
+				<Color r="242" g="252" b="43"/>
+			</Text>
+		</PlayerShip>
+		<FriendlyBase width="25" height="25" showShields="0">
+			<Fill>
+				<Color r="242" g="252" b="43"/>
+			</Fill>
+			<Text size="18" showBearing="0" showDist="1" showName="1">
+				<Color r="242" g="252" b="43"/>
+			</Text>
+		</FriendlyBase>
+		<EnemyBase width="25" height="25" showShields="0">
+			<Fill>
+				<Color r="242" g="252" b="43"/>
+			</Fill>
+			<Text size="18" showBearing="0" showDist="1" showName="1">
+				<Color r="242" g="252" b="43"/>
+			</Text>
+		</EnemyBase>
+		<Whale width="20" height="20">
+			<Fill>
+				<Color r="16" g="227" b="143"/>
+			</Fill>
+			<Text size="16" showDist="0" showName="0">
+				<Color r="16" g="227" b="143"/>
+			</Text>
+		</Whale>
+		<Monster width="25" height="25">
+			<Fill>
+				<Color r="161" g="31" b="204"/>
+			</Fill>
+			<Text size="18" showBearing="0" showDist="1" showName="1">
+				<Color r="161" g="31" b="204"/>
+			</Text>
+		</Monster>
+		<Nebula width="5000" height="5000">
+			<Fill ignoreColor="0" alpha="150">
+				<Color r="165" g="14" b="235" a="150"/>
+			</Fill>
+		</Nebula>
+		<Mine width="12.8" height="12.8">
+			<Fill>
+				<Color r="255" g="255" b="255"/>
+			</Fill>
+		</Mine>
+		<Anomaly width="1" height="1" rate="500">
+			<Fill>
+				<Color r="255" g="255" b="255"/>
+			</Fill>
+		</Anomaly>
+		<Torpedo width="2" height="2">
+			<Fill>
+				<Color r="200" g="0" b="0"/>
+			</Fill>
+		</Torpedo>
+		<Asteroid width="350" height="350">
+			<Fill>
+				<Color r="254" g="149" b="80"/>
+			</Fill>
+		</Asteroid>
+	</Styles>
+</Settings>

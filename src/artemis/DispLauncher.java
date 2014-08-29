@@ -1,3 +1,5 @@
+package artemis;
+
 import java.awt.Frame;
 import java.awt.BorderLayout;
 import java.awt.Dimension;

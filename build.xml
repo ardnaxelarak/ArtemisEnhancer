@@ -32,7 +32,7 @@
 	</target>
 
 	<target name="compile" depends="init">
-		<javac includeantruntime="false" srcdir="${srcPath}" destdir="${buildPath.classes}">
+		<javac includeantruntime="false" debug="true" srcdir="${srcPath}" destdir="${buildPath.classes}">
 			<classpath refid="project.classpath"/>
 		</javac>
 	</target>
@@ -47,7 +47,7 @@
 				<attribute name="Built-By" value="${builder}" />
 				<attribute name="Built-On" value="${build-info.current-date}" />
 				<attribute name="Built-At" value="${build-info.current-time}" />
-				<attribute name="Main-Class" value="Launcher"/>
+				<attribute name="Main-Class" value="artemis.Launcher"/>
 				<attribute name="Class-Path" value="${manifest.classpath}"/>
 			</manifest>
 		</jar>
@@ -59,7 +59,7 @@
 				<attribute name="Built-By" value="${builder}" />
 				<attribute name="Built-On" value="${build-info.current-date}" />
 				<attribute name="Built-At" value="${build-info.current-time}" />
-				<attribute name="Main-Class" value="Launcher"/>
+				<attribute name="Main-Class" value="artemis.Launcher"/>
 			</manifest>
 			<main jar="${jarname}"/>
 			<lib>

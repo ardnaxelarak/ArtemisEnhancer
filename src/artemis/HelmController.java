@@ -1,3 +1,5 @@
+package artemis;
+
 import java.io.IOException;
 
 import net.dhleong.acl.enums.Console;
